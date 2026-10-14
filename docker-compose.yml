@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: sete_lagoas_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: setelagoas_concursos
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: sete_lagoas_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgrespassword@db:5432/setelagoas_concursos
+      BASE_PORTAL_URL: https://www.setelagoas.mg.gov.br
+      REQUEST_TIMEOUT: "25.0"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
