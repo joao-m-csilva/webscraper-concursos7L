@@ -124,3 +124,33 @@ def test_get_concurso(db_session: Session):
 
     not_found = get_concurso(db_session, 999)
     assert not_found is None
+
+
+def test_sync_concursos_service(db_session: Session):
+    class MockScraper:
+        base_url = "https://www.setelagoas.mg.gov.br"
+
+        def fetch_processos(self, page, size, cd_tipo):
+            if page == 0:
+                return [{
+                    "CDPROCSELETIVO": 55,
+                    "CDTIPO": 1,
+                    "NMTIPO": "Concurso Público",
+                    "NUPROCSELETIVO": 3,
+                    "NUANOPROCSELETIVO": 2026,
+                    "NMTITULO": "Concurso Teste Sync",
+                    "CDSITUACAO": 1,
+                    "NMSITUACAO": "Aberto",
+                    "NMUNIDADE": "Educacao",
+                    "DSINFORMACOES": "Desc",
+                    "STDESTAQUE": False
+                }]
+            return []
+
+        def fetch_publicacoes(self, cd_proc_seletivo):
+            return [{"titulo": "Edital Sync", "data_publicacao": "01/01/2026", "url_arquivo": "https://file.pdf"}]
+
+    c_count, p_count = sync_concursos(db_session, MockScraper(), pages=1, page_size=10, fetch_details=True)
+    assert c_count == 1
+    assert p_count == 1
+

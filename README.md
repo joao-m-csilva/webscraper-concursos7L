@@ -56,7 +56,7 @@ Web scraper e API RESTful para monitoramento e consulta de concursos públicos e
 | `GET` | `/health` | Status de saúde da aplicação | - |
 | `GET` | `/concursos` | Listagem paginada com filtros | `?apenas_concursos=true&ano=2026&page=1&size=10` |
 | `GET` | `/concursos/{id}` | Detalhes do concurso e lista de publicações/PDFs | `/concursos/23344` |
-| `POST` | `/concursos/sync` | Gatilho manual para execução do scraper | `?pages=2&page_size=20` |
+
 
 ### Instalação e Execução Local
 
@@ -131,7 +131,7 @@ Web scraper and RESTful API designed to monitor and query public tenders, civil 
 | `GET` | `/health` | Health check probe | - |
 | `GET` | `/concursos` | Paginated listing with filtering | `?apenas_concursos=true&ano=2026&page=1&size=10` |
 | `GET` | `/concursos/{id}` | Contest details including attached publications and PDF notices | `/concursos/23344` |
-| `POST` | `/concursos/sync` | Manual trigger endpoint to trigger crawler execution | `?pages=2&page_size=20` |
+
 
 ### Local Setup & Execution
 

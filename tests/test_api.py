@@ -108,35 +108,7 @@ def test_get_concurso_detail_not_found(client_with_db: TestClient):
     assert "not found" in response.json()["detail"].lower()
 
 
-def test_trigger_sync_mock(client_with_db: TestClient, monkeypatch):
-    from app import main
+def test_sync_endpoint_not_found(client_with_db: TestClient):
+    response = client_with_db.post("/concursos/sync")
+    assert response.status_code in [404, 405]
 
-    class DummyScraper:
-        def fetch_processos(self, page, size, cd_tipo):
-            return [{
-                "CDPROCSELETIVO": 20,
-                "CDTIPO": 1,
-                "NMTIPO": "Concurso Público",
-                "NUPROCSELETIVO": 1,
-                "NUANOPROCSELETIVO": 2026,
-                "NMTITULO": "Concurso Mock",
-                "CDSITUACAO": 2,
-                "NMSITUACAO": "Em andamento",
-                "NMUNIDADE": "Admin",
-                "DSINFORMACOES": "Desc",
-                "STDESTAQUE": False
-            }]
-
-        def fetch_publicacoes(self, cd_proc_seletivo):
-            return [{"titulo": "Edital Mock", "data_publicacao": "02/02/2026", "url_arquivo": "https://url.com"}]
-
-        base_url = "https://www.setelagoas.mg.gov.br"
-
-    monkeypatch.setattr(main, "PrefeituraSeteLagoasScraper", DummyScraper)
-
-    response = client_with_db.post("/concursos/sync?pages=1&page_size=10")
-    assert response.status_code == 200
-    data = response.json()
-    assert data["synced_concursos"] == 1
-    assert data["synced_publicacoes"] == 1
-    assert data["status"] == "success"

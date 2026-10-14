@@ -4,9 +4,8 @@ from fastapi import Depends, FastAPI, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db, init_db
-from app.schemas import ConcursoDetail, PaginatedConcursos, SyncResult
-from app.scraper import PrefeituraSeteLagoasScraper
-from app.service import get_concurso, list_concursos, sync_concursos
+from app.schemas import ConcursoDetail, PaginatedConcursos
+from app.service import get_concurso, list_concursos
 
 
 @asynccontextmanager
@@ -84,26 +83,3 @@ def get_concurso_detail(concurso_id: int, db: Session = Depends(get_db)):
         )
     return concurso
 
-
-@app.post("/concursos/sync", response_model=SyncResult, tags=["Scraper"])
-def trigger_sync(
-    pages: int = Query(1, ge=1, le=10, description="Number of pages to scrape"),
-    page_size: int = Query(20, ge=1, le=50, description="Items per page from portal"),
-    tipo_id: Optional[int] = Query(None, description="Filter by specific type ID"),
-    fetch_details: bool = Query(True, description="Fetch publications and attached PDF links"),
-    db: Session = Depends(get_db)
-):
-    scraper = PrefeituraSeteLagoasScraper()
-    synced_c, synced_p = sync_concursos(
-        db=db,
-        scraper=scraper,
-        pages=pages,
-        page_size=page_size,
-        cd_tipo=tipo_id,
-        fetch_details=fetch_details
-    )
-    return SyncResult(
-        synced_concursos=synced_c,
-        synced_publicacoes=synced_p,
-        status="success"
-    )
